@@ -6,7 +6,7 @@
 #include <sys/types.h> 
 #include <sys/wait.h>
 
-/* $begin shellmain */
+/* $begin main */
 #define MAXARGS   128
 #define	MAXLINE	 8192  /* Max text line length */
 
@@ -15,6 +15,7 @@ void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
 
+//Main
 int main()
 {
     char cmdline[MAXLINE]; /* Command line */
