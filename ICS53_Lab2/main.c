@@ -56,7 +56,22 @@ void stdOut(char *fileName){
 void stdIn(char *fileName){
     FILE *fp;
     fp = fopen(fileName, "r");
+    
+    
+    FILE *file;
+    file = fopen("file1.txt", "w+");
+    fwrite("Hi aaaaa", 10 , 1 ,file);
+    fclose(file);
+    
     dup2(fileno(fp),STDIN_FILENO);
+    fclose(fp);
+}
+
+void stdErr(char *fileName){
+    FILE *fp;
+    
+    fp = fopen(fileName, "w+");
+    dup2(fileno(fp), STDERR_FILENO);
     fclose(fp);
 }
 
@@ -75,8 +90,16 @@ void eval(char *cmdline)
     if (argv[0] == NULL)
         return;   /* Ignore empty lines */
     
+//    FILE *fp;
+//    fp = fopen("asdasd.txt", "r");
+//    if (!fp){
+//        printf("File not found");
+//    }
+//    fclose(fp);
+    
     if (!builtin_command(argv)) {
         if ((pid = Fork()) == 0) {   /* Child runs user job */
+
 
             
             for (int i=0; i<MAXARGS; i++){
@@ -88,6 +111,9 @@ void eval(char *cmdline)
                 }
                 else if (!strcmp(argv[i], "<")){
                     stdIn(argv[i+1]);
+                }
+                else if (!strcmp(argv[i], "2>")){
+                    stdErr(argv[i+1]);
                 }
             }
             
