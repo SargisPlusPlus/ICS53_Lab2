@@ -46,6 +46,21 @@ pid_t Fork(void){
         return pid;
 }
 
+void stdOut(char *fileName){
+    FILE *fp;
+    fp = fopen(fileName,"w+");
+    dup2(fileno(fp),STDOUT_FILENO);
+    fclose(fp);
+}
+
+void stdIn(char *fileName){
+    FILE *fp;
+    fp = fopen(fileName, "r");
+    dup2(fileno(fp),STDIN_FILENO);
+    fclose(fp);
+}
+
+
 /* $begin eval */
 /* eval - Evaluate a command line */
 void eval(char *cmdline)
@@ -62,6 +77,20 @@ void eval(char *cmdline)
     
     if (!builtin_command(argv)) {
         if ((pid = Fork()) == 0) {   /* Child runs user job */
+
+            
+            for (int i=0; i<MAXARGS; i++){
+                if (argv[i]==NULL){
+                    break;
+                }
+                else if (!strcmp(argv[i], ">")){
+                    stdOut(argv[i+1]);
+                }
+                else if (!strcmp(argv[i], "<")){
+                    stdIn(argv[i+1]);
+                }
+            }
+            
             if (execv(argv[0], argv) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
@@ -74,8 +103,11 @@ void eval(char *cmdline)
             if (waitpid(pid, &status, 0) < 0)
                 unix_error("waitfg: waitpid error");
         }
-        else
+        else{
             printf("%d %s", pid, cmdline);
+            // Reap bg children here using sigchild
+
+        }
     }
     return;
 }
@@ -120,7 +152,7 @@ int parseline(char *buf, char **argv)
     /* Should the job run in the background? */
     if ((bg = (*argv[argc-1] == '&')) != 0)
         argv[--argc] = NULL;
-    
+
     return bg;
 }
 /* $end parseline */
