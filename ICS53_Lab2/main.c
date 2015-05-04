@@ -5,21 +5,45 @@
 #include <errno.h>
 #include <sys/types.h> 
 #include <sys/wait.h>
+#include <signal.h>
+
 
 /* $begin main */
 #define MAXARGS   128
 #define	MAXLINE	 8192  /* Max text line length */
 
+typedef void handler_t(int);
+
 /* function prototypes */
 void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
+handler_t *Signal(int signum, handler_t *handler);
+unsigned int Sleep(unsigned int secs);
+
+
+
+
+void unix_error(char *msg) /* Unix-style error */ {
+    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+    exit(0);
+}
+
+
+void Kill(pid_t pid, int signum)
+{
+    int rc;
+    
+    if ((rc = kill(pid, signum)) < 0)
+        unix_error("Kill error");
+}
 
 //Main
 int main()
 {
     char cmdline[MAXLINE]; /* Command line */
-    
+    //int n;
+   // char buf[MAXLINE];
     while (1) {
         /* Read */
         printf("prompt> ");
@@ -33,10 +57,9 @@ int main()
 }
 /* $end shellmain */
 
-void unix_error(char *msg) /* Unix-style error */ {
-    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
-    exit(0);
-}
+
+
+
 
 pid_t Fork(void){
     pid_t pid;
@@ -45,6 +68,19 @@ pid_t Fork(void){
         unix_error("Fork error");
         return pid;
 }
+
+void handler2(int sig)
+{
+    pid_t pid;
+    //int status;
+    
+    while ((pid = wait(NULL)) > 0){}
+    if (errno != ECHILD)
+        unix_error("waitpid error");
+    return;
+}
+
+
 
 void stdOut(char *fileName){
     FILE *fp;
@@ -56,25 +92,10 @@ void stdOut(char *fileName){
 void stdIn(char *fileName){
     FILE *fp;
     fp = fopen(fileName, "r");
-    
-    
-    FILE *file;
-    file = fopen("file1.txt", "w+");
-    fwrite("Hi aaaaa", 10 , 1 ,file);
-    fclose(file);
-    
+
     dup2(fileno(fp),STDIN_FILENO);
     fclose(fp);
 }
-
-void stdErr(char *fileName){
-    FILE *fp;
-    
-    fp = fopen(fileName, "w+");
-    dup2(fileno(fp), STDERR_FILENO);
-    fclose(fp);
-}
-
 
 /* $begin eval */
 /* eval - Evaluate a command line */
@@ -90,17 +111,8 @@ void eval(char *cmdline)
     if (argv[0] == NULL)
         return;   /* Ignore empty lines */
     
-//    FILE *fp;
-//    fp = fopen("asdasd.txt", "r");
-//    if (!fp){
-//        printf("File not found");
-//    }
-//    fclose(fp);
-    
     if (!builtin_command(argv)) {
         if ((pid = Fork()) == 0) {   /* Child runs user job */
-
-
             
             for (int i=0; i<MAXARGS; i++){
                 if (argv[i]==NULL){
@@ -112,9 +124,6 @@ void eval(char *cmdline)
                 else if (!strcmp(argv[i], "<")){
                     stdIn(argv[i+1]);
                 }
-                else if (!strcmp(argv[i], "2>")){
-                    stdErr(argv[i+1]);
-                }
             }
             
             if (execv(argv[0], argv) < 0) {
@@ -124,15 +133,15 @@ void eval(char *cmdline)
         }
         
         /* Parent waits for foreground job to terminate */
-        if (!bg) {
-            int status;
-            if (waitpid(pid, &status, 0) < 0)
-                unix_error("waitfg: waitpid error");
-        }
-        else{
-            printf("%d %s", pid, cmdline);
-            // Reap bg children here using sigchild
+        if (!bg) { //if foreground
 
+            //int status;
+            wait(NULL);
+        }
+        else{ // if in background
+            printf("Process executed in background: %d %s", pid, cmdline);
+            if (signal(SIGCHLD, handler2) == SIG_ERR)
+                unix_error("signal error");
         }
     }
     return;
