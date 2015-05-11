@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F127DB2B1B013008009670F2 /* mm.c in Sources */ = {isa = PBXBuildFile; fileRef = F127DB2A1B013008009670F2 /* mm.c */; };
+		F127DB2D1B01302B009670F2 /* memlib.c in Sources */ = {isa = PBXBuildFile; fileRef = F127DB2C1B01302B009670F2 /* memlib.c */; };
+		F127DB301B01307F009670F2 /* csapp.c in Sources */ = {isa = PBXBuildFile; fileRef = F127DB2E1B01307F009670F2 /* csapp.c */; };
+		F127DB341B013543009670F2 /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = F127DB321B013543009670F2 /* vector.c */; };
 		F17549811AE5734900B1A5A6 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = F17549801AE5734900B1A5A6 /* main.c */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +27,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F127DB281B012FB7009670F2 /* mm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mm.h; sourceTree = "<group>"; };
+		F127DB291B012FE5009670F2 /* memlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memlib.h; sourceTree = "<group>"; };
+		F127DB2A1B013008009670F2 /* mm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mm.c; sourceTree = "<group>"; };
+		F127DB2C1B01302B009670F2 /* memlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memlib.c; sourceTree = "<group>"; };
+		F127DB2E1B01307F009670F2 /* csapp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = csapp.c; sourceTree = "<group>"; };
+		F127DB2F1B01307F009670F2 /* csapp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = csapp.h; sourceTree = "<group>"; };
+		F127DB311B013183009670F2 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		F127DB321B013543009670F2 /* vector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vector.c; sourceTree = "<group>"; };
+		F127DB331B013543009670F2 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector.h; sourceTree = "<group>"; };
 		F175497D1AE5734800B1A5A6 /* ICS53_Lab2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ICS53_Lab2; sourceTree = BUILT_PRODUCTS_DIR; };
 		F17549801AE5734900B1A5A6 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +71,15 @@
 			isa = PBXGroup;
 			children = (
 				F17549801AE5734900B1A5A6 /* main.c */,
+				F127DB281B012FB7009670F2 /* mm.h */,
+				F127DB291B012FE5009670F2 /* memlib.h */,
+				F127DB2A1B013008009670F2 /* mm.c */,
+				F127DB2C1B01302B009670F2 /* memlib.c */,
+				F127DB2E1B01307F009670F2 /* csapp.c */,
+				F127DB2F1B01307F009670F2 /* csapp.h */,
+				F127DB311B013183009670F2 /* config.h */,
+				F127DB321B013543009670F2 /* vector.c */,
+				F127DB331B013543009670F2 /* vector.h */,
 			);
 			path = ICS53_Lab2;
 			sourceTree = "<group>";
@@ -118,7 +140,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F127DB2D1B01302B009670F2 /* memlib.c in Sources */,
 				F17549811AE5734900B1A5A6 /* main.c in Sources */,
+				F127DB2B1B013008009670F2 /* mm.c in Sources */,
+				F127DB341B013543009670F2 /* vector.c in Sources */,
+				F127DB301B01307F009670F2 /* csapp.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +261,7 @@
 				F17549861AE5734900B1A5A6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -1,88 +1,57 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h> 
-#include <sys/wait.h>
-#include <signal.h>
+// Vigen Amirkhanyan
+// Arman Karabakhtsyan
+// Sargis Dudaklyan
 
+#include "csapp.h"
+#include "vector.h"
+/* $begin shellmain */
 
-/* $begin main */
 #define MAXARGS   128
-#define	MAXLINE	 8192  /* Max text line length */
-
-typedef void handler_t(int);
 
 /* function prototypes */
 void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
-handler_t *Signal(int signum, handler_t *handler);
-unsigned int Sleep(unsigned int secs);
 
-
-
-
-void unix_error(char *msg) /* Unix-style error */ {
-    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
-    exit(0);
-}
-
-
-void Kill(pid_t pid, int signum)
-{
-    int rc;
-    
-    if ((rc = kill(pid, signum)) < 0)
-        unix_error("Kill error");
-}
-
-//Main
 int main()
 {
     char cmdline[MAXLINE]; /* Command line */
-    //int n;
-   // char buf[MAXLINE];
+    
     while (1) {
         /* Read */
-        printf("prompt> ");
-        fgets(cmdline, MAXLINE, stdin);
+        printf("> ");
+        Fgets(cmdline, MAXLINE, stdin);
         if (feof(stdin))
             exit(0);
         
         /* Evaluate */
         eval(cmdline);
-    }
+    } 
 }
 /* $end shellmain */
 
 
-
-
-
-pid_t Fork(void){
-    pid_t pid;
-    
-    if ((pid = fork()) < 0)
-        unix_error("Fork error");
-        return pid;
-}
-
-void handler2(int sig)
-{
+void handler2(int sig){
+    //Puts th
     pid_t pid;
     //int status;
     
     while ((pid = wait(NULL)) > 0){}
+    //it waits until a child (any child) of the process terminates, not all of them.
+    
+    /*
+     The waitpid function is complicated. By default (when options = 0), waitpid suspends execution of the calling process until a child process in its wait set terminates. If a process in the wait set has already terminated at the time of the call, then waitpid returns immediately. In either case, waitpid returns the PID of the terminated child that caused waitpid to return, and the terminated child is removed from the system.
+     */
+    
+    /*If the calling process has no children, then waitpid returns −1 and sets errno to ECHILD */
     if (errno != ECHILD)
-        unix_error("waitpid error");
+        //checks if there are child processes left and gives error if there is
+        unix_error("wait error");
     return;
 }
 
-
-
 void stdOut(char *fileName){
+    // Creates a file pointer to write into
     FILE *fp;
     fp = fopen(fileName,"w+");
     dup2(fileno(fp),STDOUT_FILENO);
@@ -90,31 +59,35 @@ void stdOut(char *fileName){
 }
 
 void stdIn(char *fileName){
+    // Creates a file pointer to read from
     FILE *fp;
     fp = fopen(fileName, "r");
-
     dup2(fileno(fp),STDIN_FILENO);
     fclose(fp);
 }
 
 /* $begin eval */
 /* eval - Evaluate a command line */
-void eval(char *cmdline)
-{
+void eval(char *cmdline){
+    //Input array
     char *argv[MAXARGS]; /* Argument list execve() */
+    //Modified input command splitted
     char buf[MAXLINE];   /* Holds modified command line */
     int bg;              /* Should the job run in bg or fg? */
     pid_t pid;           /* Process id */
     
     strcpy(buf, cmdline);
-    bg = parseline(buf, argv);
+    bg = parseline(buf, argv); // Populates argv with everything in the buff and returns 1 if runs in the background(with &)
     if (argv[0] == NULL)
         return;   /* Ignore empty lines */
     
     if (!builtin_command(argv)) {
+        //If not builtin command, not quit or &, create a child
         if ((pid = Fork()) == 0) {   /* Child runs user job */
-            
-            for (int i=0; i<MAXARGS; i++){
+            //If Fork returns 0, it runs in the background
+            int i;
+            for (i=0; i<MAXARGS; i++){
+                //looks for < > in the argument vector
                 if (argv[i]==NULL){
                     break;
                 }
@@ -137,23 +110,131 @@ void eval(char *cmdline)
 
             //int status;
             wait(NULL);
+            
+            //it waits until a child (any child) of the process terminates, not all of them.
+            // Using wait instead of waitpid
+            // waitpid(-1,NULL,0) == wait(NULL)
+            // waitpid(pid, *status, options) if pid is neg, entire group. status returns child killed
+            //CHECK THIS
         }
         else{ // if in background
-            printf("Process executed in background: %d %s", pid, cmdline);
-            if (signal(SIGCHLD, handler2) == SIG_ERR)
+            
+           // printf("Process executed in background: %d %s", pid, cmdline);
+            if (signal(SIGCHLD, handler2) == SIG_ERR) //When a child process terminates or stops, the kernel sends a SIGCHLD signal to the parent.
+                //Checks if signal returns an error
+                //signal returns a status of a child and the parents reaps it depending on the stauts number
                 unix_error("signal error");
+
         }
     }
+    
     return;
 }
+
+
+
+
+/* This function allows the user to allocate a block of memory from
+ your heap. This function should take one argument, the number of bytes
+ which the user wants in the allocated block. This function should call
+ mm_malloc. This function should print out a unique block number which is
+ associated with the block of memory which has just been allocated. The block
+ numbers should increment each time a new block is allocated. So the first
+ allocated block should be block number 1, the second is block number 2, etc.
+ Notice that only the allocated blocks receive block numbers
+*/
+void allocateMem(char numBytes){
+    
+}
+
+
+/* This function allows the user to free a block of memory. This function
+ takes one argument, the block number associated with the previously
+ allocated block of memory. This function must call mm_free. When a block is freed its block number is no longer valid. The block number should
+ not be reused to number any newly allocated block in the future. */
+void freeMem(char blockNum){
+    
+}
+
+
+/* This command prints out information about all of the blocks in your
+ heap. It takes no arguments. The following information should be printed
+ about each block:
+ • Size
+ • Allocated (yes or no)
+ • Start address
+ • End address
+ Addresses should be printed in hexadecimal. The blocks should be printed in the
+ order in which they are found in the heap. */
+void blocklist(){
+    
+}
+
+
+
+/* This function writes characters into a block in the heap. The
+ function takes three arguments: the block number to write to, the character to
+ write into the block, and the number of copies of the character to write into the
+ block. The specified character will be written into n successive locations of
+ the block, where n is the third argument. This function should not overwrite
+ the header of the block which it is writing to, only the payload. */
+void writeheap(char blockNum, char writeChar, char numCopies){
+    
+    
+}
+
+
+/* This prints out the contents of a portion of the heap. This function
+ takes two arguments: the number of the block to be printed, and the number
+ of bytes to print after the start of the block. This function should not print the
+ header of the chosen block, only the payload. If the number of bytes to print
+ is larger than the size of the block, this function should print the bytes anyway,
+ even though they might extend into a neighboring block. */
+void printheap(char numBlock, char numBytes){
+    
+
+}
+
+/* This function tells the allocator to use the bestfit allocation algorithm
+ from now on. This function takes no arguments. */
+void bestfit(){
+    
+    
+}
+
+
+/*This function tells the allocator to use the firstfit allocation algorithm
+ from now on. This function takes no arguments. */
+void firstfit(){
+    
+    
+}
+
+
 
 /* If first arg is a builtin command, run it and return true */
 int builtin_command(char **argv)
 {
-    if (!strcmp(argv[0], "quit")) /* quit command */
-        exit(0);
+    //Checks if first argument is quit or &
     if (!strcmp(argv[0], "&"))    /* Ignore singleton & */
         return 1;
+    if (!strcmp(argv[0], "quit")) /* quit command */
+        exit(0);
+    else if (!strcmp(argv[0], "allocate"))
+        allocateMem(*argv[1]);
+    else if (!strcmp(argv[0], "free"))
+        freeMem(*argv[1]);
+    else if (!strcmp(argv[0], "blocklist"))
+        blocklist();
+    else if (!strcmp(argv[0], "writeheap"))
+        writeheap(*argv[1], *argv[2], *argv[3]);
+    else if (!strcmp(argv[0], "printheap"))
+        printheap(*argv[1], *argv[2]);
+    else if (!strcmp(argv[0], "bestfit"))
+        bestfit();
+    else if (!strcmp(argv[0], "firstfit"))
+        firstfit();
+    
     return 0;                     /* Not a builtin command */
 }
 /* $end eval */
@@ -174,6 +255,7 @@ int parseline(char *buf, char **argv)
     argc = 0;
     while ((delim = strchr(buf, ' '))) {
         argv[argc++] = buf;
+        
         *delim = '\0';
         buf = delim + 1;
         while (*buf && (*buf == ' ')) /* Ignore spaces */
