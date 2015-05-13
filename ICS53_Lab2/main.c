@@ -4,6 +4,9 @@
 
 #include "csapp.h"
 #include "vector.h"
+
+//#include "DoubleLinkedList.h"
+
 /* $begin shellmain */
 
 #define MAXARGS   128
@@ -13,10 +16,17 @@ void eval(char *cmdline);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv);
 
+vector v;
+
 int main()
 {
     char cmdline[MAXLINE]; /* Command line */
     
+    //Initialize the heap
+    mem_init();
+    //Initialize vector
+    vector_init(&v);
+
     while (1) {
         /* Read */
         printf("> ");
@@ -145,6 +155,9 @@ void eval(char *cmdline){
 */
 void allocateMem(char numBytes){
     
+    int numBytesInt = numBytes - '0';
+    vector_add(&v, mm_malloc(numBytesInt));
+    printf("%i\n",vector_total(&v));
 }
 
 
@@ -154,6 +167,9 @@ void allocateMem(char numBytes){
  not be reused to number any newly allocated block in the future. */
 void freeMem(char blockNum){
     
+    mm_free(vector_get(&v,blockNum));
+    //vector_delete(&v, blockNum);
+    //vector_set(&v, blockNum, NULL);
 }
 
 
@@ -168,6 +184,16 @@ void freeMem(char blockNum){
  order in which they are found in the heap. */
 void blocklist(){
     
+    if (vector_total(&v)>0){
+        printf("Size Allocated Start          End");
+        int i;
+        for (i=0; i < v.total; i++){
+            //char *isAllocated =(vector_get(&v, i) != NULL) ? "yes" : "no";
+            //printf("%i%-5s%-9s%-10s",vector_get);
+            //printblock(vector_get(&v, i));
+        }
+    }
+
 }
 
 
@@ -215,25 +241,42 @@ void firstfit(){
 /* If first arg is a builtin command, run it and return true */
 int builtin_command(char **argv)
 {
-    //Checks if first argument is quit or &
+
+    
+    
+    
     if (!strcmp(argv[0], "&"))    /* Ignore singleton & */
         return 1;
     if (!strcmp(argv[0], "quit")) /* quit command */
         exit(0);
-    else if (!strcmp(argv[0], "allocate"))
+    else if (!strcmp(argv[0], "allocate")){
         allocateMem(*argv[1]);
-    else if (!strcmp(argv[0], "free"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "free")){
         freeMem(*argv[1]);
-    else if (!strcmp(argv[0], "blocklist"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "blocklist")){
         blocklist();
-    else if (!strcmp(argv[0], "writeheap"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "writeheap")){
         writeheap(*argv[1], *argv[2], *argv[3]);
-    else if (!strcmp(argv[0], "printheap"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "printheap")){
         printheap(*argv[1], *argv[2]);
-    else if (!strcmp(argv[0], "bestfit"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "bestfit")){
         bestfit();
-    else if (!strcmp(argv[0], "firstfit"))
+        return 1;
+    }
+    else if (!strcmp(argv[0], "firstfit")){
         firstfit();
+        return 1;
+    }
     
     return 0;                     /* Not a builtin command */
 }

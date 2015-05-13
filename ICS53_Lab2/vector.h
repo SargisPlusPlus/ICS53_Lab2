@@ -1,7 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#define VECTOR_INIT_CAPACITY 4
+#define VECTOR_INIT_CAPACITY 1
 
 #define VECTOR_INIT(vec) vector vec; vector_init(&vec)
 #define VECTOR_ADD(vec, item) vector_add(&vec, (void *) item)
@@ -12,7 +12,8 @@
 #define VECTOR_FREE(vec) vector_free(&vec)
 
 typedef struct vector {
-    void **items;
+    int **items;
+    int blockNumber;
     int capacity;
     int total;
 } vector;
@@ -20,9 +21,9 @@ typedef struct vector {
 void vector_init(vector *);
 int vector_total(vector *);
 static void vector_resize(vector *, int);
-void vector_add(vector *, void *);
-void vector_set(vector *, int, void *);
-void *vector_get(vector *, int);
+void vector_add(vector *, int);
+void vector_set(vector *, int, int *);
+int vector_get(vector *, int);
 void vector_delete(vector *, int);
 void vector_free(vector *);
 

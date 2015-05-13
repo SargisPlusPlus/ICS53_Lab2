@@ -21,27 +21,27 @@ static void vector_resize(vector *v, int capacity)
     printf("vector_resize: %d to %d\n", v->capacity, capacity);
 #endif
     
-    void **items = realloc(v->items, sizeof(void *) * capacity);
+    int **items = realloc(v->items, sizeof(void *) * capacity);
     if (items) {
         v->items = items;
         v->capacity = capacity;
     }
 }
 
-void vector_add(vector *v, void *item)
+void vector_add(vector *v, int item)
 {
     if (v->capacity == v->total)
         vector_resize(v, v->capacity * 2);
     v->items[v->total++] = item;
 }
 
-void vector_set(vector *v, int index, void *item)
+void vector_set(vector *v, int index, int *item)
 {
     if (index >= 0 && index < v->total)
         v->items[index] = item;
 }
 
-void *vector_get(vector *v, int index)
+int vector_get(vector *v, int index)
 {
     if (index >= 0 && index < v->total)
         return v->items[index];
@@ -55,12 +55,12 @@ void vector_delete(vector *v, int index)
     
     v->items[index] = NULL;
     
-    for (int i = 0; i < v->total - 1; i++) {
-        v->items[i] = v->items[i + 1];
-        v->items[i + 1] = NULL;
-    }
-    
-    v->total--;
+//    for (int i = 0; i < v->total - 1; i++) {
+//        v->items[i] = v->items[i + 1];
+//        v->items[i + 1] = NULL;
+//    }
+//
+//    v->total--;
     
     if (v->total > 0 && v->total == v->capacity / 4)
         vector_resize(v, v->capacity / 2);
