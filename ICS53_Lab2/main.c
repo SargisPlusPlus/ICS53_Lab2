@@ -1,5 +1,4 @@
-// Vigen Amirkhanyan
-// Arman Karabakhtsyan
+
 // Sargis Dudaklyan
 
 #include "csapp.h"
